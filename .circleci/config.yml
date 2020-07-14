@@ -92,6 +92,19 @@ jobs:
   apply-with-approval:
     <<: *apply_job
 
+  destroy_plan:
+    <<: *default_config
+    steps:
+      - *restore_repo
+      - *set_terraform_environment
+      - *terraform_init
+      - run:
+          name: terraform destroy plan
+          command: |
+            source $BASH_ENV
+            cd ~/project/
+            terraform plan -var-file=test.tfvars -destroy
+
   destroy:
     <<: *default_config
     steps:
@@ -119,6 +132,10 @@ workflows:
             - plan
       - hold:
           type: approval
+      - destroy_plan:
+          requires:
+            -apply
       - destroy:
           requires:
             - hold
+            - destroy_plan
