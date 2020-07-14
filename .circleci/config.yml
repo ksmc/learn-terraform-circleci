@@ -134,7 +134,7 @@ workflows:
           type: approval
       - destroy_plan:
           requires:
-            -apply
+            - apply
       - destroy:
           requires:
             - hold
