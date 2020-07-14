@@ -130,14 +130,9 @@ workflows:
       - build
       - plan:
           requires:
-            - build
-      - approval:
-          type: approval
-          requires: plan
       - apply:
           requires:
             - plan
-            - approval
       - deployment:
           requires:
             - apply
