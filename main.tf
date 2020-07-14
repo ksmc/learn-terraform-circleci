@@ -12,7 +12,6 @@ provider "aws" {
 locals {
   environment = var.environment
   common_tags = {
-    namespace   = var.namespace
     environment = var.environment
     managed     = var.managed
     group       = var.group

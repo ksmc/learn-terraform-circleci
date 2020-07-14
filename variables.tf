@@ -15,3 +15,6 @@ variable "group" {
   type = string
   default = "infra"
 }
+variable "cidr" {
+  
+}
