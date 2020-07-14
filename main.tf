@@ -26,7 +26,7 @@ resource "aws_vpc" "testvpc" {
   enable_classiclink   = false
   instance_tenancy     = "default"
 
-  tags = merge(local.common_tags, { Name = "${var.environment}-hhs-mainvpc" })
+  tags = merge(local.common_tags, { Name = "${var.environment}-circleci-testvpc" })
 }
 
 output "VPC_ID" {
