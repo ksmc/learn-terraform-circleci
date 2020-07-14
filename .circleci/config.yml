@@ -130,6 +130,7 @@ workflows:
       - build
       - plan:
           requires:
+            - build
       - apply:
           requires:
             - plan
