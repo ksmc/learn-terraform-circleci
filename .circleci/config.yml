@@ -122,7 +122,6 @@ jobs:
             cd ~/project/
             terraform destroy --auto-approve
 
-            
 
 workflows:
   version: 2.1
@@ -132,10 +131,13 @@ workflows:
       - plan:
           requires:
             - build
+      - approval:
+          type: approval
+          requires: plan
       - apply:
           requires:
             - plan
-            - hold
+            - approval
       - deployment:
           requires:
             - apply
@@ -146,4 +148,3 @@ workflows:
       - destroy:
           requires:
             - hold
-
