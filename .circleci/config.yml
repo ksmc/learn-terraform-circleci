@@ -119,8 +119,6 @@ workflows:
             - plan
       - hold:
           type: approval
-          requires:
-            - deployment
       - destroy:
           requires:
             - hold
