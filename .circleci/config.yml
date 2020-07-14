@@ -85,7 +85,7 @@ jobs:
           command: |
             source $BASH_ENV
             cd ~/project/
-            terraform plan -var-file=test.tfvars
+            terraform plan -var-file=test.tfvars -out=test.tfplan
 
   apply:
     <<: *apply_job
@@ -103,7 +103,7 @@ jobs:
           command: |
             source $BASH_ENV
             cd ~/project/
-            terraform plan -var-file=test.tfvars -destroy
+            terraform plan -var-file=test.tfvars -destroy - out=destroy.tfplan
 
   destroy:
     <<: *default_config
@@ -132,6 +132,8 @@ workflows:
             - plan
       - hold:
           type: approval
+          requires:
+            - apply
       - destroy_plan:
           requires:
             - apply
