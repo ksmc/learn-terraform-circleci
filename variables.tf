@@ -16,5 +16,6 @@ variable "group" {
   default = "infra"
 }
 variable "cidr" {
-  
+  type = string
+  default = "172.29.0.0/16"
 }
