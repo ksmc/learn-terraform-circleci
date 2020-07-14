@@ -136,7 +136,7 @@ workflows:
             - apply
       - destroy_plan:
           requires:
-            - apply
+            - destroy_plan
       - destroy:
           requires:
             - hold
