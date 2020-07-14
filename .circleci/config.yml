@@ -122,6 +122,7 @@ jobs:
             cd ~/project/
             terraform destroy --auto-approve
 
+            
 
 workflows:
   version: 2.1
