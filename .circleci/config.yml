@@ -145,5 +145,3 @@ workflows:
           requires:
             - destroy_hold
             - destroy_plan
-
-#this comment only exists in dev / merging this comment to master
