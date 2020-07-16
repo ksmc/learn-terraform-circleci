@@ -127,10 +127,14 @@ workflows:
       - plan:
           requires:
             - build
-      - apply:
+      - applyhold:
+          type: approval
           requires:
             - plan
-      - hold:
+      - apply:
+          requires:
+            - applyhold
+      - destroyhold:
           type: approval
           requires:
             - destroy_plan
@@ -141,3 +145,5 @@ workflows:
           requires:
             - hold
             - destroy_plan
+
+#this comment only exists in dev
