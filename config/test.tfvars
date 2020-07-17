@@ -1,6 +1,5 @@
 region = "us-west-2"
-environment = "test"
+environment = "testtest"
 managed = "terraform"
 group = "infra"
-cidr  = "10.0.3.0/24"
-#viewing git diff
+cidr  = "10.0.45.0/24"
