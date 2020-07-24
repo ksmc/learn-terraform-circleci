@@ -85,7 +85,7 @@ jobs:
           command: |
             source $BASH_ENV
             cd ~/project/
-            terraform plan -var-file=./config/{{ .Branch }}.tfvars -out={{ .Branch }}.tfplan
+            terraform plan -var-file=./config/test.tfvars -out=test.tfplan
 
   apply:
     <<: *apply_job
@@ -101,7 +101,7 @@ jobs:
           command: |
             source $BASH_ENV
             cd ~/project/
-            terraform plan -var-file=./config/{{ .Branch }}.tfvars -destroy -out=destroy-{{ .Branch }}.tfplan
+            terraform plan -var-file=./config/test.tfvars -destroy -out=destroy-test.tfplan
 
   destroy:
     <<: *default_config
