@@ -80,6 +80,10 @@ jobs:
       - *restore_repo
       - *set_terraform_environment
       - *terraform_init
+      - persist_to_workspace:
+          - root: .
+          - paths:
+              - *working_directory
       - run:
           name: terraform plan
           command: |
