@@ -89,7 +89,7 @@ jobs:
       - persist_to_workspace:
           root: /root/project
           paths:
-            - ~/test.tfplan
+            - /root/project/test.tfplan
       - *save_repo
 
   apply:
