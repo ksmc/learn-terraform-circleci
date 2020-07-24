@@ -83,7 +83,7 @@ jobs:
       - persist_to_workspace:
         - root: ~/
         - paths:
-            - *working_directory
+            - ~/project/test.tfplan
       - run:
           name: terraform plan
           command: |
