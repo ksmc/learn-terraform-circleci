@@ -87,7 +87,7 @@ jobs:
             cd ~/project/
             terraform plan -var-file=./config/test.tfvars -out=test.tfplan
       - persist_to_workspace:
-          root: /root/project/
+          root: ~/project/
           paths:
             - test.tfplan
       - *save_repo
