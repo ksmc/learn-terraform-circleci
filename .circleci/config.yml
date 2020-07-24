@@ -89,8 +89,6 @@ jobs:
 
   apply:
     <<: *apply_job
-  apply-with-approval:
-    <<: *apply_job
 
   destroy_plan:
     <<: *default_config
@@ -145,5 +143,3 @@ workflows:
           requires:
             - destroy_hold
             - destroy_plan
-            #testing git login
-            #bad place to store how to have git login automatically but here it is:  git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"  
