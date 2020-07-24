@@ -86,10 +86,10 @@ jobs:
             source $BASH_ENV
             cd ~/project/
             terraform plan -var-file=./config/test.tfvars -out=test.tfplan
-        - persist_to_workspace:
-          - root: ~/
-          - paths:
-            - ~/project/test.tfplan
+      - persist_to_workspace:
+        - root: ~/
+        - paths:
+          - ~/project/test.tfplan
       - *save_repo
 
   apply:
