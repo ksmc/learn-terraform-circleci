@@ -81,7 +81,7 @@ jobs:
       - *set_terraform_environment
       - *terraform_init
       - persist_to_workspace:
-        - root: .
+        - root: ~/
         - paths:
             - *working_directory
       - run:
