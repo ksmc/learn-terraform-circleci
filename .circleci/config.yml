@@ -80,16 +80,16 @@ jobs:
       - *restore_repo
       - *set_terraform_environment
       - *terraform_init
-      - persist_to_workspace:
-        - root: ~/
-        - paths:
-            - ~/project/test.tfplan
       - run:
           name: terraform plan
           command: |
             source $BASH_ENV
             cd ~/project/
             terraform plan -var-file=./config/test.tfvars -out=test.tfplan
+      - persist_to_workspace:
+        - root: ~/
+        - paths:
+            - ~/project/test.tfplan
       - *save_repo
 
   apply:
