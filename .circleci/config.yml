@@ -57,7 +57,7 @@ apply_job: &apply_job
           source $BASH_ENV
           cd ~/project/
           terraform init -backend-config=./config/backend-test.hcl
-          terraform apply --auto-approve
+          terraform apply test.tfplan --auto-approve
 jobs:
 
   build:
@@ -86,6 +86,7 @@ jobs:
             source $BASH_ENV
             cd ~/project/
             terraform plan -var-file=./config/test.tfvars -out=test.tfplan
+      - *save_repo
 
   apply:
     <<: *apply_job
