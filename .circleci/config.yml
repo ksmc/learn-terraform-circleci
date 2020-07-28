@@ -91,11 +91,11 @@ jobs:
             export ENV=$(cat /tmp/workspace/env-output)          
             source $BASH_ENV
             cd ~/project/
-            terraform plan -var-file=./config/${ENV}.tfvars -out=${ENV}.tfplan
+            terraform plan -var-file=./config/${ENV}.tfvars -out=tfplan.tfplan
       - persist_to_workspace:
           root: ~/project/
           paths:
-            - ${ENV}.tfplan
+            - tfplan.tfplan
       - *save_repo
 
   apply:
@@ -111,7 +111,7 @@ jobs:
             source $BASH_ENV
             cd ~/project/
             terraform init -backend-config=./config/backend-test.hcl
-            terraform apply "test.tfplan"
+            terraform apply "tfplan.tfplan"
 
   destroy_plan:
     <<: *default_config
