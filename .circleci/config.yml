@@ -87,11 +87,11 @@ jobs:
     steps:
       - *set_terraform_environment
       - attach_workspace:
-          at: ~/project/      
+          at: ~/    
       - run:
           name: terraform plan
           command: |
-            export ENV=$(cat ~/project/env-output)          
+            export ENV=$(cat ~/env-output)          
             source $BASH_ENV
             cd ~/project/
             ls
