@@ -34,7 +34,7 @@ set_terraform_environment: &set_terraform_environment
     name: set terraform environment
     command: |
       echo 'export ENV=$(cat /tmp/workspace/env-output)' >> $BASH_ENV
-      echo "This is the "$ENV" environment."
+      echo "This is the $ENV environment."
       cd && touch $BASH_ENV
       cd ~/project/
       echo $ENV
@@ -48,15 +48,6 @@ terraform_init: &terraform_init
       source $BASH_ENV
       cd ~/project/
       terraform init -backend-config=./config/backend-test.hcl
-
-set_environment: &set_environment
-  run:
-    name: "Setting AWS ENV variable"
-    command: |
-      echo 'export ENV=$(cat /tmp/workspace/env-output)' >> $BASH_ENV
-      echo "This is the "$ENV" environment."
-  attach_workspace:
-    at: /tmp/workspace
 
 jobs:
   determine environment:
