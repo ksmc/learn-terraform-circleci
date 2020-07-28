@@ -16,6 +16,19 @@ default_config: &default_config
     BASH_ENV: /root/.bashrc
     TERRAFORM_ENV: ~/project/
 
+repo_cache_key: &repo_cache_key
+  v1-repo-{{ .Branch }}-{{ .Revision }}
+
+restore_repo: &restore_repo
+  restore_cache:
+    key: *repo_cache_key
+
+save_repo: &save_repo
+  save_cache:
+    key: *repo_cache_key
+    paths:
+      - *working_directory
+
 set_terraform_environment: &set_terraform_environment
   run:
     name: set terraform environment
@@ -103,6 +116,30 @@ jobs:
             terraform init -backend-config=./config/backend-${ENV}.hcl
             terraform apply "tfplan.tfplan"
 
+  destroy_plan:
+    <<: *default_config
+    steps:
+      - *restore_repo
+      - *set_terraform_environment
+      - run:
+          name: terraform destroy plan
+          command: |
+            source $BASH_ENV
+            cd ~/project/
+            terraform plan -var-file=./config/test.tfvars -destroy -out=destroy-test.tfplan
+
+  destroy:
+    <<: *default_config
+    steps:
+      - *restore_repo
+      - *set_terraform_environment
+      - run:
+          name: "Destruction of env"
+          command: |
+            source $BASH_ENV
+            cd ~/project/
+            terraform destroy --auto-approve
+
 workflows:
   version: 2
   build_plan_approve_apply:
@@ -121,3 +158,15 @@ workflows:
       - apply:
           requires:
             - apply_hold
+      - destroy_hold:
+          type: approval
+          requires:
+            - destroy_plan
+      - destroy_plan:
+          requires:
+            - apply
+      - destroy:
+          requires:
+            - destroy_hold
+            - destroy_plan
+            #empty commit
