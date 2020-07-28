@@ -94,6 +94,7 @@ jobs:
             export ENV=$(cat ~/project/env-output)          
             source $BASH_ENV
             cd ~/project/
+            ls
             terraform plan -var-file=./config/${ENV}.tfvars -out=tfplan.tfplan
       - persist_to_workspace:
           root: ~/
