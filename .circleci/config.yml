@@ -43,8 +43,23 @@ terraform_init: &terraform_init
       source $BASH_ENV
       cd ~/project/
       terraform init -backend-config=./config/backend-test.hcl
-
+apply_job: &apply_job
+  <<: *default_config
+  steps:
+    - *restore_repo
+    - *set_terraform_environment
+    - *terraform_init
+    - attach_workspace:
+        at: *working_directory
+    - run:
+        name: terraform apply
+        command: |
+          source $BASH_ENV
+          cd ~/project/
+          terraform init -backend-config=./config/backend-test.hcl
+          terraform apply "test.tfplan"
 jobs:
+
   build:
     <<: *default_config
     filters:
@@ -82,20 +97,7 @@ jobs:
       - *save_repo
 
   apply:
-    <<: *default_config
-    steps:
-      - *restore_repo
-      - *set_terraform_environment
-      - *terraform_init
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: terraform apply
-          command: |
-            source $BASH_ENV
-            cd ~/project/
-            terraform init -backend-config=./config/backend-test.hcl
-            terraform apply "test.tfplan"
+    <<: *apply_job
 
   destroy_plan:
     <<: *default_config
