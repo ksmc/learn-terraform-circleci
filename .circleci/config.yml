@@ -36,6 +36,7 @@ set_terraform_environment: &set_terraform_environment
       at: /tmp/workspace
     command: |
       export ENV=$(cat /tmp/workspace/env-output)
+      ls
       echo "This is the "${ENV}" environment."
       cd && touch $BASH_ENV
       cd ~/project/
