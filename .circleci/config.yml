@@ -19,7 +19,6 @@ default_config: &default_config
 repo_cache_key: &repo_cache_key
   v1-repo-{{ .Branch }}-{{ .Revision }}
 
-# Step to restore repository from cache
 restore_repo: &restore_repo
   restore_cache:
     key: *repo_cache_key
@@ -36,16 +35,43 @@ set_terraform_environment: &set_terraform_environment
     command: |
       cd && touch $BASH_ENV
       cd ~/project/
+
 terraform_init: &terraform_init
   run:
     name: terraform init
     command: |
       source $BASH_ENV
       cd ~/project/
-      terraform init -backend-config=./config/backend-${CIRCLE_BRANCH}.hcl
+      terraform init -backend-config=./config/backend-test.hcl
+
+set_environment: &set_environment
+  run:
+    name: "Setting AWS ENV variable"
+    command: |
+      echo 'export ENV=$(cat /tmp/workspace/env-output)' >> $BASH_ENV
+      echo "This is the "$ENV" environment."
 
 jobs:
-
+  Determine Environment:
+    docker:
+      - image: cimg/base:stable
+    working_directory: /tmp
+    steps:
+      - run:
+          name: "Getting GIT Branch"
+          command: | 
+            mkdir -p workspace
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              echo "prod" > workspace/env-output
+            elif [ "${CIRCLE_BRANCH}" == "develop" ]; then
+              echo "int" > workspace/env-output
+            else
+              echo "${CIRCLE_BRANCH}" > workspace/env-output
+            fi
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - env-output
   build:
     <<: *default_config
     steps:
