@@ -77,12 +77,14 @@ jobs:
             cd ~/project/
             terraform init -backend-config=./config/backend-${ENV}.hcl
             terraform fmt
-      - *save_repo
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/
 
   plan:
     <<: *default_config
     steps:
-      - *restore_repo
       - *set_terraform_environment
       - attach_workspace:
           at: ~/project/      
