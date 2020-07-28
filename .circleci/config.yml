@@ -63,10 +63,13 @@ jobs:
             mkdir -p workspace
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               echo "prod" > workspace/env-output
+              echo "prod"
             elif [ "${CIRCLE_BRANCH}" == "develop" ]; then
               echo "int" > workspace/env-output
+              echo "int"
             else
               echo "${CIRCLE_BRANCH}" > workspace/env-output
+              echo "${CIRCLE_BRANCH}"
             fi
       - persist_to_workspace:
           root: workspace
