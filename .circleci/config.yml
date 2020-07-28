@@ -35,13 +35,6 @@ set_terraform_environment: &set_terraform_environment
     command: |
       cd && touch $BASH_ENV
       cd ~/project/
-
-terraform_init: &terraform_init
-  run:
-    name: terraform init
-    command: |
-      source $BASH_ENV
-      cd ~/project/
       terraform init -backend-config=./config/backend-test.hcl
 
 jobs:
@@ -80,7 +73,6 @@ jobs:
           command: |
             export ENV=$(cat /tmp/workspace/env-output)
             echo "This is the "${ENV}" environment."
-            echo $ENV
             source $BASH_ENV
             cd ~/project/
             terraform init -backend-config=./config/backend-${ENV}.hcl
@@ -92,7 +84,6 @@ jobs:
     steps:
       - *restore_repo
       - *set_terraform_environment
-      - *terraform_init
       - run:
           name: terraform plan
           command: |
@@ -110,7 +101,6 @@ jobs:
     steps:
       - *restore_repo
       - *set_terraform_environment
-      - *terraform_init
       - attach_workspace:
           at: *working_directory
       - run:
@@ -126,7 +116,6 @@ jobs:
     steps:
       - *restore_repo
       - *set_terraform_environment
-      - *terraform_init
       - run:
           name: terraform destroy plan
           command: |
@@ -139,7 +128,6 @@ jobs:
     steps:
       - *restore_repo
       - *set_terraform_environment
-      - *terraform_init
       - run:
           name: "Destruction of env"
           command: |
