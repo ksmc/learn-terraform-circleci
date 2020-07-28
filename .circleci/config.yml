@@ -35,7 +35,6 @@ set_terraform_environment: &set_terraform_environment
     command: |
       cd && touch $BASH_ENV
       cd ~/project/
-      terraform init -backend-config=./config/backend-test.hcl
 
 jobs:
   determine environment:
@@ -84,16 +83,19 @@ jobs:
     steps:
       - *restore_repo
       - *set_terraform_environment
+      - attach_workspace:
+          at: /tmp/workspace      
       - run:
           name: terraform plan
           command: |
+            export ENV=$(cat /tmp/workspace/env-output)          
             source $BASH_ENV
             cd ~/project/
-            terraform plan -var-file=./config/test.tfvars -out=test.tfplan
+            terraform plan -var-file=./config/${ENV}.tfvars -out=${ENV}.tfplan
       - persist_to_workspace:
           root: ~/project/
           paths:
-            - test.tfplan
+            - ${ENV}.tfplan
       - *save_repo
 
   apply:
