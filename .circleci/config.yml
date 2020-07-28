@@ -32,15 +32,9 @@ save_repo: &save_repo
 set_terraform_environment: &set_terraform_environment
   run:
     name: set terraform environment
-    attach_workspace:
-      at: /tmp/workspace
     command: |
-      export ENV=$(cat /tmp/workspace/env-output)
-      ls
-      echo "This is the "${ENV}" environment."
       cd && touch $BASH_ENV
       cd ~/project/
-      echo $ENV
 
 terraform_init: &terraform_init
   run:
@@ -79,9 +73,14 @@ jobs:
     steps:
       - checkout
       - *set_terraform_environment
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: terraform fmt
           command: |
+            export ENV=$(cat /tmp/workspace/env-output)
+            ls
+            echo "This is the "${ENV}" environment."
             source $BASH_ENV
             cd ~/project/
             terraform init -backend-config=./config/backend-test.hcl
