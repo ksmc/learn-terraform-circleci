@@ -81,6 +81,7 @@ jobs:
             export ENV=$(cat /tmp/workspace/env-output)
             ls
             echo "This is the "${ENV}" environment."
+            echo $ENV
             source $BASH_ENV
             cd ~/project/
             terraform init -backend-config=./config/backend-test.hcl
