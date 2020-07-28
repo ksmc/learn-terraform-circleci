@@ -62,10 +62,6 @@ jobs:
 
   build:
     <<: *default_config
-    filters:
-      branches:
-        only:
-          test
     steps:
       - checkout
       - *set_terraform_environment
@@ -125,6 +121,7 @@ jobs:
             cd ~/project/
             terraform destroy --auto-approve
 
+
 workflows:
   version: 2
   build_plan_approve_apply:
@@ -151,3 +148,4 @@ workflows:
           requires:
             - destroy_hold
             - destroy_plan
+            #testing variables 
