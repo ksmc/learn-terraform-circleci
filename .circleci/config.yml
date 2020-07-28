@@ -121,4 +121,3 @@ workflows:
       - apply:
           requires:
             - apply_hold
-            #testing destroy  
