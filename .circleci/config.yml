@@ -50,7 +50,7 @@ jobs:
     filters:
       branches:
         only:
-          develop
+          test
     steps:
       - checkout
       - *set_terraform_environment
