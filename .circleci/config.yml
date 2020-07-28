@@ -94,9 +94,9 @@ jobs:
             cd ~/project/
             terraform plan -var-file=./config/${ENV}.tfvars -out=tfplan.tfplan
       - persist_to_workspace:
-          root: ~/project/
+          root: ~/
           paths:
-            - /
+            - *
 
   apply:
     <<: *default_config
