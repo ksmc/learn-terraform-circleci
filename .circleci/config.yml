@@ -106,13 +106,14 @@ jobs:
       - *restore_repo
       - *set_terraform_environment
       - attach_workspace:
-          at: *working_directory
+          at: ~/project/
       - run:
           name: terraform apply
           command: |
+            export ENV=$(cat ~/project/env-output)
             source $BASH_ENV
             cd ~/project/
-            terraform init -backend-config=./config/backend-test.hcl
+            terraform init -backend-config=./config/backend-${ENV}.hcl
             terraform apply "tfplan.tfplan"
 
   destroy_plan:
