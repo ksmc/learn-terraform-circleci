@@ -59,10 +59,12 @@ jobs:
       - run:
           name: terraform fmt
           command: |
+            ls
             export ENV=$(cat ~/project/env-output)
             echo "This is the "${ENV}" environment."
             source $BASH_ENV
             cd ~/project/
+            ls
             terraform init -backend-config=./config/backend-${ENV}.hcl
             terraform fmt
       - persist_to_workspace:
