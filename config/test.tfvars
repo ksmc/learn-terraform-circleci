@@ -1,5 +1,5 @@
 region = "us-west-2"
-environment = "testtest"
+environment = "test"
 managed = "terraform"
 group = "infra"
 cidr  = "10.0.45.0/24"
