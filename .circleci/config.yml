@@ -30,7 +30,7 @@ jobs:
     working_directory: /tmp
     steps:
       - run:
-          name: "Getting GIT Branch"
+          name: "Getting GIT Branch & setting $ENV var"
           command: | 
 
             mkdir -p workspace
