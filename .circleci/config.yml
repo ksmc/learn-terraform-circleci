@@ -33,8 +33,13 @@ set_terraform_environment: &set_terraform_environment
   run:
     name: set terraform environment
     command: |
+      echo 'export ENV=$(cat /tmp/workspace/env-output)' >> $BASH_ENV
+      echo "This is the "$ENV" environment."
       cd && touch $BASH_ENV
       cd ~/project/
+      echo $ENV
+    attach_workspace:
+      at: /tmp/workspace
 
 terraform_init: &terraform_init
   run:
@@ -50,9 +55,11 @@ set_environment: &set_environment
     command: |
       echo 'export ENV=$(cat /tmp/workspace/env-output)' >> $BASH_ENV
       echo "This is the "$ENV" environment."
+  attach_workspace:
+    at: /tmp/workspace
 
 jobs:
-  Determine Environment:
+  determine environment:
     docker:
       - image: cimg/base:stable
     working_directory: /tmp
@@ -153,8 +160,10 @@ workflows:
   version: 2
   build_plan_approve_apply:
     jobs:
-      - build
-      - Determine Environment
+      - determine environment
+      - build:
+          requires:
+            - determine environment
       - plan:
           requires:
             - build
