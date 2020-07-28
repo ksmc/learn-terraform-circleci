@@ -45,6 +45,7 @@ jobs:
       - run:
           name: "Getting GIT Branch"
           command: | 
+
             mkdir -p workspace
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               echo "prod" > workspace/env-output
@@ -66,11 +67,11 @@ jobs:
       - checkout
       - *set_terraform_environment
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/project/
       - run:
           name: terraform fmt
           command: |
-            export ENV=$(cat /tmp/workspace/env-output)
+            export ENV=$(cat ~/project/env-output)
             echo "This is the "${ENV}" environment."
             source $BASH_ENV
             cd ~/project/
