@@ -1,0 +1,172 @@
+version: 2.1
+
+references:
+
+base_image: &base_image
+  hashicorp/terraform:light
+
+working_directory: &working_directory
+  ~/project
+
+default_config: &default_config
+  docker:
+    - image: *base_image
+  working_directory: *working_directory
+  environment:
+    BASH_ENV: /root/.bashrc
+    TERRAFORM_ENV: ~/project/
+
+repo_cache_key: &repo_cache_key
+  v1-repo-{{ .Branch }}-{{ .Revision }}
+
+restore_repo: &restore_repo
+  restore_cache:
+    key: *repo_cache_key
+
+save_repo: &save_repo
+  save_cache:
+    key: *repo_cache_key
+    paths:
+      - *working_directory
+
+set_terraform_environment: &set_terraform_environment
+  run:
+    name: set terraform environment
+    command: |
+      cd && touch $BASH_ENV
+      cd ~/project/
+
+jobs:
+  determine environment:
+    docker:
+      - image: cimg/base:stable
+    working_directory: /tmp
+    steps:
+      - run:
+          name: "Getting GIT Branch"
+          command: | 
+
+            mkdir -p workspace
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              echo "prod" > workspace/env-output
+              echo "prod"
+            elif [ "${CIRCLE_BRANCH}" == "develop" ]; then
+              echo "int" > workspace/env-output
+              echo "int"
+            else
+              echo "${CIRCLE_BRANCH}" > workspace/env-output
+              echo "${CIRCLE_BRANCH}"
+            fi
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - env-output
+  build:
+    <<: *default_config
+    steps:
+      - checkout
+      - *set_terraform_environment
+      - attach_workspace:
+          at: ~/project/
+      - run:
+          name: terraform fmt
+          command: |
+            export ENV=$(cat ~/project/env-output)
+            echo "This is the "${ENV}" environment."
+            source $BASH_ENV
+            cd ~/project/
+            terraform init -backend-config=./config/backend-${ENV}.hcl
+            terraform fmt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/
+
+  plan:
+    <<: *default_config
+    steps:
+      - *set_terraform_environment
+      - attach_workspace:
+          at: ~/    
+      - run:
+          name: terraform plan
+          command: |
+            export ENV=$(cat ~/env-output)          
+            source $BASH_ENV
+            cd ~/project/
+            ls
+            terraform plan -var-file=./config/${ENV}.tfvars -out=tfplan.tfplan
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/
+
+  apply:
+    <<: *default_config
+    steps:
+      - *set_terraform_environment
+      - attach_workspace:
+          at: ~/project/
+      - run:
+          name: terraform apply
+          command: |
+            export ENV=$(cat ~/project/env-output)
+            source $BASH_ENV
+            cd ~/project/
+            terraform init -backend-config=./config/backend-${ENV}.hcl
+            terraform apply "tfplan.tfplan"
+
+  destroy_plan:
+    <<: *default_config
+    steps:
+      - *restore_repo
+      - *set_terraform_environment
+      - run:
+          name: terraform destroy plan
+          command: |
+            source $BASH_ENV
+            cd ~/project/
+            terraform plan -var-file=./config/test.tfvars -destroy -out=destroy-test.tfplan
+
+  destroy:
+    <<: *default_config
+    steps:
+      - *restore_repo
+      - *set_terraform_environment
+      - run:
+          name: "Destruction of env"
+          command: |
+            source $BASH_ENV
+            cd ~/project/
+            terraform destroy --auto-approve
+
+workflows:
+  version: 2
+  build_plan_approve_apply:
+    jobs:
+      - determine environment
+      - build:
+          requires:
+            - determine environment
+      - plan:
+          requires:
+            - build
+      - apply_hold:
+          type: approval
+          requires:
+            - plan
+      - apply:
+          requires:
+            - apply_hold
+      - destroy_hold:
+          type: approval
+          requires:
+            - destroy_plan
+      - destroy_plan:
+          requires:
+            - apply
+      - destroy:
+          requires:
+            - destroy_hold
+            - destroy_plan
+            #empty commit
