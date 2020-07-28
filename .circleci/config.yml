@@ -48,6 +48,7 @@ jobs:
           root: workspace
           paths:
             - env-output
+  
   build:
     <<: *default_config
     steps:
@@ -93,11 +94,11 @@ jobs:
     steps:
       - *set_terraform_environment
       - attach_workspace:
-          at: ~/project/
+          at: ~/
       - run:
           name: terraform apply
           command: |
-            export ENV=$(cat ~/project/env-output)
+            export ENV=$(cat ~/env-output)
             source $BASH_ENV
             cd ~/project/
             terraform init -backend-config=./config/backend-${ENV}.hcl
