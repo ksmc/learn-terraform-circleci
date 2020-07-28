@@ -16,19 +16,6 @@ default_config: &default_config
     BASH_ENV: /root/.bashrc
     TERRAFORM_ENV: ~/project/
 
-repo_cache_key: &repo_cache_key
-  v1-repo-{{ .Branch }}-{{ .Revision }}
-
-restore_repo: &restore_repo
-  restore_cache:
-    key: *repo_cache_key
-
-save_repo: &save_repo
-  save_cache:
-    key: *repo_cache_key
-    paths:
-      - *working_directory
-
 set_terraform_environment: &set_terraform_environment
   run:
     name: set terraform environment
@@ -77,12 +64,10 @@ jobs:
             cd ~/project/
             terraform init -backend-config=./config/backend-${ENV}.hcl
             terraform fmt
-      - *save_repo
 
   plan:
     <<: *default_config
     steps:
-      - *restore_repo
       - *set_terraform_environment
       - attach_workspace:
           at: ~/project/      
@@ -98,12 +83,10 @@ jobs:
           paths:
             - tfplan.tfplan
             - env-output
-      - *save_repo
 
   apply:
     <<: *default_config
     steps:
-      - *restore_repo
       - *set_terraform_environment
       - attach_workspace:
           at: ~/project/
@@ -119,7 +102,6 @@ jobs:
   destroy_plan:
     <<: *default_config
     steps:
-      - *restore_repo
       - *set_terraform_environment
       - run:
           name: terraform destroy plan
@@ -131,7 +113,6 @@ jobs:
   destroy:
     <<: *default_config
     steps:
-      - *restore_repo
       - *set_terraform_environment
       - run:
           name: "Destruction of env"
