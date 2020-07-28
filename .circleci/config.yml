@@ -96,14 +96,11 @@ jobs:
       - persist_to_workspace:
           root: ~/project/
           paths:
-            - tfplan.tfplan
-            - env-output
-      - *save_repo
+            - /
 
   apply:
     <<: *default_config
     steps:
-      - *restore_repo
       - *set_terraform_environment
       - attach_workspace:
           at: ~/project/
