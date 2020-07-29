@@ -103,11 +103,96 @@ jobs:
             terraform init -backend-config=./config/backend-${ENV}.hcl
             terraform apply "tfplan.tfplan"
 
+#enter environment you need to destroy in this if statement's first echo line
+  set destroy environment:
+    docker:
+      - image: cimg/base:stable
+    working_directory: /tmp
+    steps:
+      - run:
+          name: "prepare destroy & set $ENV var"
+          command: | 
+            mkdir -p workspace
+            if [ "${CIRCLE_BRANCH}" == "destroy" ]; then
+              echo "test" > workspace/env-output
+              destroy=`cat workspace/env-output`
+              RED='\033[0;31m'
+              echo -e "\n${RED}preparing to destroy $destroy environment\n"
+            else
+              echo "invalid branch"
+            fi
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - env-output
+            
+  build_destroy:
+    <<: *default_config
+    steps:
+      - checkout
+      - *set_terraform_environment
+      - attach_workspace:
+          at: ~/project/
+      - run:
+          name: terraform fmt
+          command: |
+            export ENV=$(cat ~/project/env-output)
+            RED='\033[0;31m'
+            echo -e "\n${RED}!!!!THIS WILL DESTROY the "${ENV}" environment!!!!\n"
+            source $BASH_ENV
+            cd ~/project/
+            terraform init -backend-config=./config/backend-${ENV}.hcl
+            terraform fmt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/
+
+  destroy_plan:
+    <<: *default_config
+    steps:
+      - *set_terraform_environment
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: terraform destroy plan
+          command: |
+            export ENV=$(cat ~/env-output)
+            RED='\033[0;31m'
+            echo -e "\n${RED}!!!!THIS WILL DESTROY the "${ENV}" environment!!!!\n"
+            source $BASH_ENV
+            cd ~/project/
+            terraform plan -var-file=./config/${ENV}.tfvars -destroy -out=destroy.tfplan
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/
+
+  destroy:
+    <<: *default_config
+    steps:
+      - *set_terraform_environment
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: "Destruction of env"
+          command: |
+            export ENV=$(cat ~/env-output)
+            RED='\033[0;31m'
+            echo -e "\n${RED}!!!!THIS WILL DESTROY the "${ENV}" environment!!!!\n"
+            source $BASH_ENV
+            cd ~/project/
+            terraform apply "destroy.tfplan"
+
 workflows:
   version: 2.1
   build_plan_approve_apply:
     jobs:
-      - determine environment
+      - determine environment:
+          filters:
+            branches:
+              ignore:
+                - destroy            
       - build:
           requires:
             - determine environment
@@ -121,3 +206,25 @@ workflows:
       - apply:
           requires:
             - apply_hold
+
+  destroy:
+    jobs:
+      - set destroy environment:
+          filters:
+            branches:
+              only:
+                - destroy
+      - build_destroy:
+          requires:
+            - set destroy environment
+      - destroy_plan:
+          requires:
+            - build_destroy
+      - destroy_hold:
+          type: approval
+          requires:
+            - destroy_plan         
+      - destroy:
+          requires:
+            - destroy_hold
+            - destroy_plan
